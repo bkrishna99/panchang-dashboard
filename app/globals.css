@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #0d1024;
+  --ink-2: #12162f;
+  --card: #191d3d;
+  --card-border: #2b2f57;
+  --gold: #cba135;
+  --gold-soft: #e8cd7a;
+  --rust: #c05a3d;
+  --rust-soft: #e08a6c;
+  --parchment: #f2ead6;
+  --muted: #9096b8;
+  --muted-2: #6b7095;
+
+  --font-display: "Fraunces", serif;
+  --font-body: "Inter", sans-serif;
+  --font-data: "IBM Plex Mono", monospace;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-card: var(--card);
+  --color-card-border: var(--card-border);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-rust: var(--rust);
+  --color-rust-soft: var(--rust-soft);
+  --color-parchment: var(--parchment);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-data: var(--font-data);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(203, 161, 53, 0.10), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(192, 90, 61, 0.08), transparent),
+    var(--ink);
+  color: var(--parchment);
+  font-family: var(--font-body);
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+/* Subtle starfield texture used behind the hero */
+.starfield {
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(242,234,214,0.5), transparent),
+    radial-gradient(1px 1px at 80% 10%, rgba(242,234,214,0.35), transparent),
+    radial-gradient(1.5px 1.5px at 60% 60%, rgba(242,234,214,0.4), transparent),
+    radial-gradient(1px 1px at 30% 80%, rgba(242,234,214,0.3), transparent),
+    radial-gradient(1px 1px at 90% 70%, rgba(242,234,214,0.35), transparent),
+    radial-gradient(1.5px 1.5px at 45% 35%, rgba(242,234,214,0.3), transparent);
+  background-repeat: repeat;
+  background-size: 260px 260px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pulse-marker {
+    animation: pulse-marker 2.4s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse-marker {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.35); }
+}
