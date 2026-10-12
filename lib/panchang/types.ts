@@ -31,6 +31,7 @@ export interface SpecialDay {
 
 export interface PanchangData {
   location: string;
+  timeZone: string;
   generatedAt: string;
   date: string; // yyyy-MM-dd, Panchang day (sunrise-based) in local time
   weekday: string;

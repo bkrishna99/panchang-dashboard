@@ -36,21 +36,21 @@ npm run panchang:check
 
 ## Changing the location
 
-Everything is keyed off one config object:
+The dashboard lets you choose a date and a location/timezone from the page.
+The available locations are Dublin, Ireland (`Europe/Dublin`) and New Delhi,
+India (`Asia/Kolkata`). Panchang values are calculated for the selected
+location's coordinates and the selected local date.
+
+To change or add a supported location, edit `lib/panchang/location.ts`:
 
 ```ts
-// lib/panchang/location.ts
-export const LOCATION = {
-  name: "Dublin, Ireland",
-  latitude: 53.3498,
-  longitude: -6.2603,
-  elevation: 20,
-  timeZone: "Europe/Dublin",
+export const LOCATIONS = {
+  ireland: { name: "Dublin, Ireland", latitude: 53.3498, longitude: -6.2603, elevation: 20, timeZone: "Europe/Dublin" },
+  india: { name: "New Delhi, India", latitude: 28.6139, longitude: 77.209, elevation: 216, timeZone: "Asia/Kolkata" },
 };
 ```
 
-Change the coordinates and IANA `timeZone` to retarget the whole dashboard
-at a different city — no other code needs to change.
+The dropdown options in `app/page.tsx` should match the location keys.
 
 ## Deploying: GitHub → Vercel
 
