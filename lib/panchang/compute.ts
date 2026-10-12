@@ -325,6 +325,7 @@ export function computePanchang(observer: Observer, timeZone: string, now: Date 
 
   return {
     location: "",
+    timeZone,
     generatedAt: new Date().toISOString(),
     date: localSunrise.toFormat("yyyy-MM-dd"),
     weekday,

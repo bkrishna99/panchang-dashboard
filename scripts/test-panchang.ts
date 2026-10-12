@@ -1,7 +1,8 @@
 import { computePanchang } from "../lib/panchang/compute";
-import { LOCATION } from "../lib/panchang/location";
+import { LOCATIONS } from "../lib/panchang/location";
 import { DateTime } from "luxon";
 
+const LOCATION = LOCATIONS.ireland;
 const now = new Date();
 const data = computePanchang(
   { latitude: LOCATION.latitude, longitude: LOCATION.longitude, elevation: LOCATION.elevation },

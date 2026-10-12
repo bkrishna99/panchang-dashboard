@@ -141,7 +141,7 @@ export function GanttChart({ data, nowMs }: { data: PanchangData; nowMs: number 
       style={{ background: "var(--card)", borderColor: "var(--card-border)" }}
     >
       <p className="text-[10px] uppercase tracking-[0.16em] mb-3" style={{ color: "var(--muted)" }}>
-        Today at a glance
+        {DateTime.fromISO(data.date, { zone: data.timeZone }).toFormat("d LLL yyyy")} at a glance
       </p>
 
       <svg
@@ -180,8 +180,8 @@ export function GanttChart({ data, nowMs }: { data: PanchangData; nowMs: number 
                     opacity={row.label === "Neutral" ? 0.35 : 0.85}
                   >
                     <title>
-                      {seg.label}: {formatClockWithDay(new Date(seg.start).toISOString(), data.sunrise)} –{" "}
-                      {formatClockWithDay(new Date(seg.end).toISOString(), data.sunrise)}
+                      {seg.label}: {formatClockWithDay(new Date(seg.start).toISOString(), data.sunrise, data.timeZone)} –{" "}
+                      {formatClockWithDay(new Date(seg.end).toISOString(), data.sunrise, data.timeZone)}
                     </title>
                   </rect>
                 );
@@ -232,7 +232,7 @@ export function GanttChart({ data, nowMs }: { data: PanchangData; nowMs: number 
                 />
                 <line x1={nowX} x2={nowX} y1={tipY + TIP_H} y2={AXIS_TOP - 6} stroke="var(--card-border)" strokeDasharray="2 2" />
                 <text x={tipX + 12} y={tipY + 18} fontSize={11} fontFamily="var(--font-data)" fill="var(--parchment)">
-                  {formatClockWithDay(new Date(nowMs).toISOString(), data.sunrise)}
+                  {formatClockWithDay(new Date(nowMs).toISOString(), data.sunrise, data.timeZone)}
                   <tspan fill={nowCategoryColor}>
                     {"  \u25CF  "}
                     {nowCategory === "bad" ? "Bad" : nowCategory === "good" ? "Good" : "Neutral"}
@@ -245,7 +245,7 @@ export function GanttChart({ data, nowMs }: { data: PanchangData; nowMs: number 
                   </tspan>
                   {nowSeg && (
                     <tspan x={tipX + 12} dy="14">
-                      until {formatClockWithDay(new Date(nowSeg.end).toISOString(), data.sunrise)}
+                      until {formatClockWithDay(new Date(nowSeg.end).toISOString(), data.sunrise, data.timeZone)}
                     </tspan>
                   )}
                 </text>
@@ -256,9 +256,9 @@ export function GanttChart({ data, nowMs }: { data: PanchangData; nowMs: number 
       </svg>
 
       <div className="flex justify-between mt-1 text-[10px]" style={{ fontFamily: "var(--font-data)", color: "var(--muted)" }}>
-        <span>{formatClockWithDay(data.sunrise, data.sunrise)} rise</span>
-        <span>{formatClockWithDay(data.sunset, data.sunrise)} set</span>
-        <span>{formatClockWithDay(data.nextSunrise, data.sunrise)} rise</span>
+        <span>{formatClockWithDay(data.sunrise, data.sunrise, data.timeZone)} rise</span>
+        <span>{formatClockWithDay(data.sunset, data.sunrise, data.timeZone)} set</span>
+        <span>{formatClockWithDay(data.nextSunrise, data.sunrise, data.timeZone)} rise</span>
       </div>
 
       <LegendSection
@@ -267,6 +267,7 @@ export function GanttChart({ data, nowMs }: { data: PanchangData; nowMs: number 
         color="var(--gold)"
         groups={groupByLabel(goodDisplay)}
         refIso={data.sunrise}
+        timeZone={data.timeZone}
       />
       <LegendSection
         title="Bad"
@@ -274,6 +275,7 @@ export function GanttChart({ data, nowMs }: { data: PanchangData; nowMs: number 
         color="var(--rust)"
         groups={groupByLabel(badSegments)}
         refIso={data.sunrise}
+        timeZone={data.timeZone}
       />
 
       <p className="text-[10px] mt-3" style={{ color: "var(--muted-2)" }}>
@@ -292,12 +294,14 @@ function LegendSection({
   color,
   groups,
   refIso,
+  timeZone,
 }: {
   title: string;
   subtitle: string;
   color: string;
   groups: { label: string; ranges: { start: number; end: number }[] }[];
   refIso: string;
+  timeZone: string;
 }) {
   if (groups.length === 0) return null;
   return (
@@ -320,9 +324,10 @@ function LegendSection({
                 {g.ranges
                   .map(
                     (r) =>
-                      `${formatClockWithDay(new Date(r.start).toISOString(), refIso)}\u2013${formatClockWithDay(
+                      `${formatClockWithDay(new Date(r.start).toISOString(), refIso, timeZone)}\u2013${formatClockWithDay(
                         new Date(r.end).toISOString(),
-                        refIso
+                        refIso,
+                        timeZone
                       )}`
                   )
                   .join(", ")}

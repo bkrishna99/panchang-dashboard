@@ -3,13 +3,14 @@ import type { PanchangData, TimeWindow } from "@/lib/panchang/types";
 import { findCurrentOrNext } from "@/lib/schedule";
 import { formatClock, formatClockWithDay, isNowWithin, minutesUntil } from "@/lib/format";
 
-function joinRanges(windows: TimeWindow[], refIso: string): string {
+function joinRanges(windows: TimeWindow[], refIso: string, timeZone: string): string {
   return windows
-    .map((w) => `${formatClockWithDay(w.start, refIso)}–${formatClockWithDay(w.end, refIso)}`)
+    .map((w) => `${formatClockWithDay(w.start, refIso, timeZone)}–${formatClockWithDay(w.end, refIso, timeZone)}`)
     .join(", ");
 }
 
 export function PanchangCard({ data, nowMs }: { data: PanchangData; nowMs: number }) {
+  const isSelectedDayToday = DateTime.fromMillis(nowMs, { zone: data.timeZone }).toFormat("yyyy-MM-dd") === data.date;
   const venus = findCurrentOrNext(
     data.hora.filter((h) => h.planet === "Venus"),
     nowMs
@@ -48,9 +49,9 @@ export function PanchangCard({ data, nowMs }: { data: PanchangData; nowMs: numbe
           </h1>
         </div>
         <p className="text-[10px] text-right leading-tight" style={{ fontFamily: "var(--font-data)", color: "var(--muted-2)" }}>
-          ☉ {formatClock(data.sunrise)}
+          ☉ {formatClock(data.sunrise, data.timeZone)}
           <br />
-          ☾ {formatClock(data.sunset)}
+          ☾ {formatClock(data.sunset, data.timeZone)}
         </p>
       </div>
 
@@ -74,7 +75,7 @@ export function PanchangCard({ data, nowMs }: { data: PanchangData; nowMs: numbe
             {data.tithi.name}
           </p>
           <p className="text-[11px]" style={{ fontFamily: "var(--font-data)", color: "var(--muted-2)" }}>
-            till {formatClockWithDay(data.tithi.end, data.sunrise)}
+            till {formatClockWithDay(data.tithi.end, data.sunrise, data.timeZone)}
           </p>
         </div>
         <div>
@@ -85,7 +86,7 @@ export function PanchangCard({ data, nowMs }: { data: PanchangData; nowMs: numbe
             {data.nakshatras[0]?.name}
           </p>
           <p className="text-[11px]" style={{ fontFamily: "var(--font-data)", color: "var(--muted-2)" }}>
-            till {formatClockWithDay(data.nakshatras[0]?.end, data.sunrise)}
+            till {formatClockWithDay(data.nakshatras[0]?.end, data.sunrise, data.timeZone)}
           </p>
         </div>
       </div>
@@ -97,8 +98,8 @@ export function PanchangCard({ data, nowMs }: { data: PanchangData; nowMs: numbe
         <p className="text-[10px] uppercase tracking-wide" style={{ color: "var(--gold-soft)" }}>
           Good time · Hora
         </p>
-        <HoraLine label="Venus" nowMs={nowMs} current={venus.current} next={venus.next} refIso={data.sunrise} />
-        <HoraLine label="Jupiter" nowMs={nowMs} current={jupiter.current} next={jupiter.next} refIso={data.sunrise} />
+        <HoraLine label="Venus" nowMs={nowMs} current={isSelectedDayToday ? venus.current : null} next={venus.next} refIso={data.sunrise} timeZone={data.timeZone} showRelative={isSelectedDayToday} />
+        <HoraLine label="Jupiter" nowMs={nowMs} current={isSelectedDayToday ? jupiter.current : null} next={jupiter.next} refIso={data.sunrise} timeZone={data.timeZone} showRelative={isSelectedDayToday} />
       </div>
 
       <div style={{ borderTop: "1px solid var(--card-border)" }} />
@@ -126,7 +127,7 @@ export function PanchangCard({ data, nowMs }: { data: PanchangData; nowMs: numbe
                   {row.label}
                 </span>
                 <span style={{ fontFamily: "var(--font-data)", color: "var(--muted)" }}>
-                  {joinRanges(row.windows, data.sunrise)}
+                  {joinRanges(row.windows, data.sunrise, data.timeZone)}
                 </span>
               </div>
             );
@@ -135,8 +136,8 @@ export function PanchangCard({ data, nowMs }: { data: PanchangData; nowMs: numbe
       </div>
 
       <p className="text-[10px] pt-0.5" style={{ color: "var(--muted-2)" }}>
-        Computed astronomically for Dublin · updated{" "}
-        {DateTime.fromISO(data.generatedAt).toFormat("h:mm a")}
+        Computed astronomically for {data.location} · updated{" "}
+        {DateTime.fromISO(data.generatedAt, { zone: data.timeZone }).toFormat("h:mm a")}
       </p>
     </div>
   );
@@ -148,12 +149,16 @@ function HoraLine({
   current,
   next,
   refIso,
+  timeZone,
+  showRelative,
 }: {
   label: string;
   nowMs: number;
   current: (TimeWindow & { planet: string }) | null;
   next: (TimeWindow & { planet: string }) | null;
   refIso: string;
+  timeZone: string;
+  showRelative: boolean;
 }) {
   const w = current ?? next;
   return (
@@ -172,8 +177,8 @@ function HoraLine({
       </span>
       {w ? (
         <span style={{ fontFamily: "var(--font-data)", color: "var(--muted)" }}>
-          {!current && `in ${minutesUntil(nowMs, w.start)}m · `}
-          {formatClockWithDay(w.start, refIso)}–{formatClockWithDay(w.end, refIso)}
+          {!current && showRelative && `in ${minutesUntil(nowMs, w.start)}m · `}
+          {formatClockWithDay(w.start, refIso, timeZone)}–{formatClockWithDay(w.end, refIso, timeZone)}
         </span>
       ) : (
         <span style={{ color: "var(--muted-2)" }}>—</span>
